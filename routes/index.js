@@ -28,12 +28,14 @@ router.post("/compile", (req, res) => {
           : "java Main";
 
       exec(command, (runErr, runStdout, runStderr) => {
-          if (runErr) {
-              res.status(400).json({ error: `Runtime Error: ${runStderr}` });
-              return;
-          }
+            if (runErr) {
+                res.status(400).json({ error: `Runtime Error: ${runStderr}` });
+                return;
+            }
 
-          res.json({ output: runStdout });
+            const outputLines = runStdout.trim().split("\n");
+            const finalOutput = outputLines[outputLines.length - 1];
+            res.json({ output: finalOutput });
       });
   });
 });
