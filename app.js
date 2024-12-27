@@ -13,7 +13,13 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: "http://127.0.0.1:5500", // Địa chỉ frontend
+  methods: ["GET", "POST"], // Chỉ cho phép các phương thức này
+};
+
+app.use(cors(corsOptions));
+// app.use(cors());
 app.use(bodyParser.json());
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
