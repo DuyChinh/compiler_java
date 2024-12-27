@@ -39,39 +39,39 @@ router.post("/compile", (req, res) => {
 });
 
 
-// router.post("/test", (req, res) => {
-//   const { code, input } = req.body;
+router.post("/test", (req, res) => {
+  const { code, input } = req.body;
 
-//   // Sử dụng thư mục tạm thời của Vercel (/tmp)
-//   const tempFilePath = "/tmp/Main.java"; // Đường dẫn file tạm thời
-//   const compiledFilePath = "/tmp"; // Nơi chứa file biên dịch
+  // Sử dụng thư mục tạm thời của Vercel (/tmp)
+  const tempFilePath = "/tmp/Main.java"; // Đường dẫn file tạm thời
+  const compiledFilePath = "/tmp"; // Nơi chứa file biên dịch
 
-//   try {
-//       // Lưu mã Java vào file tạm
-//       fs.writeFileSync(tempFilePath, code);
+  try {
+      // Lưu mã Java vào file tạm
+      fs.writeFileSync(tempFilePath, code);
 
-//       // Biên dịch mã Java
-//       exec(`javac -d ${compiledFilePath} ${tempFilePath}`, (compileErr, compileStdout, compileStderr) => {
-//           if (compileErr) {
-//               res.status(400).json({ error: `Compile Error: ${compileStderr}` });
-//               return;
-//           }
+      // Biên dịch mã Java
+      exec(`javac -d ${compiledFilePath} ${tempFilePath}`, (compileErr, compileStdout, compileStderr) => {
+          if (compileErr) {
+              res.status(400).json({ error: `Compile Error: ${compileStderr}` });
+              return;
+          }
 
-//           // Chạy mã Java với input
-//           const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
-//           exec(command, (runErr, runStdout, runStderr) => {
-//               if (runErr) {
-//                   res.status(400).json({ error: `Runtime Error: ${runStderr}` });
-//                   return;
-//               }
+          // Chạy mã Java với input
+          const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
+          exec(command, (runErr, runStdout, runStderr) => {
+              if (runErr) {
+                  res.status(400).json({ error: `Runtime Error: ${runStderr}` });
+                  return;
+              }
 
-//               res.json({ output: runStdout });
-//           });
-//       });
-//   } catch (err) {
-//       res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
+              res.json({ output: runStdout });
+          });
+      });
+  } catch (err) {
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 router.get("/check-java", (req, res) => {
     exec("java -version", (err, stdout, stderr) => {
@@ -83,36 +83,36 @@ router.get("/check-java", (req, res) => {
     });
 });
 
-router.post("/test", (req, res) => {
-    const { code, input } = req.body;
-    const tempFilePath = "/tmp/Main.java";
+// router.post("/test", (req, res) => {
+//     const { code, input } = req.body;
+//     const tempFilePath = "/tmp/Main.java";
 
-    try {
-        // Ghi mã Java vào file tạm
-        fs.writeFileSync(tempFilePath, code);
+//     try {
+//         // Ghi mã Java vào file tạm
+//         fs.writeFileSync(tempFilePath, code);
 
-        // Biên dịch mã Java (timeout: 5 giây)
-        exec(`javac ${tempFilePath}`, { timeout: 5000 }, (compileErr, compileStdout, compileStderr) => {
-            if (compileErr) {
-                res.status(400).json({ error: `Compile Error: ${compileStderr || compileErr.message}` });
-                return;
-            }
+//         // Biên dịch mã Java (timeout: 5 giây)
+//         exec(`javac ${tempFilePath}`, { timeout: 5000 }, (compileErr, compileStdout, compileStderr) => {
+//             if (compileErr) {
+//                 res.status(400).json({ error: `Compile Error: ${compileStderr || compileErr.message}` });
+//                 return;
+//             }
 
-            // Chạy mã Java với input (timeout: 5 giây)
-            const command = `echo "${input}" | java -cp /tmp Main`;
-            exec(command, { timeout: 5000 }, (runErr, runStdout, runStderr) => {
-                if (runErr) {
-                    res.status(400).json({ error: `Runtime Error: ${runStderr || runErr.message}` });
-                    return;
-                }
+//             // Chạy mã Java với input (timeout: 5 giây)
+//             const command = `echo "${input}" | java -cp /tmp Main`;
+//             exec(command, { timeout: 5000 }, (runErr, runStdout, runStderr) => {
+//                 if (runErr) {
+//                     res.status(400).json({ error: `Runtime Error: ${runStderr || runErr.message}` });
+//                     return;
+//                 }
 
-                res.json({ output: runStdout });
-            });
-        });
-    } catch (err) {
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
+//                 res.json({ output: runStdout });
+//             });
+//         });
+//     } catch (err) {
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// });
 
 
 
