@@ -16,4 +16,4 @@ COPY . .
 RUN npm install
 
 # Khởi động ứng dụng
-CMD ["node", "index.js"]
+CMD ["node", "app.js"]
