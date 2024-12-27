@@ -15,5 +15,7 @@ COPY . .
 # Cài đặt dependencies
 RUN npm install
 
+EXPOSE 3001
+
 # Khởi động ứng dụng
 CMD ["node", "app.js"]
