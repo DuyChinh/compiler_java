@@ -73,5 +73,16 @@ router.post("/test", (req, res) => {
   }
 });
 
+router.get("/check-java", (req, res) => {
+    exec("java -version", (err, stdout, stderr) => {
+        if (err) {
+            res.status(500).json({ error: "Java is not installed" });
+        } else {
+            res.json({ version: stderr || stdout });
+        }
+    });
+});
+
+
 
 module.exports = router;
