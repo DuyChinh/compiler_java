@@ -48,7 +48,9 @@ router.post("/test", (req, res) => {
 
   try {
       // Lưu mã Java vào file tạm
-      fs.writeFileSync(tempFilePath, code);
+    //   fs.writeFileSync(tempFilePath, code);
+      fs.writeFileSync(tempFilePath, code, { encoding: "utf8", flag: "w" });
+
 
       // Biên dịch mã Java
       exec(`javac -d ${compiledFilePath} ${tempFilePath}`, (compileErr, compileStdout, compileStderr) => {
