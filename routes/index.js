@@ -83,7 +83,7 @@ router.get("/check-java", (req, res) => {
     });
 });
 
-app.post("/test", (req, res) => {
+router.post("/test", (req, res) => {
     const { code, input } = req.body;
     const tempFilePath = "/tmp/Main.java";
 
