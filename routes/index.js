@@ -76,12 +76,13 @@ router.post("/test", (req, res) => {
 router.get("/check-java", (req, res) => {
     exec("java -version", (err, stdout, stderr) => {
         if (err) {
-            res.status(500).json({ error: "Java is not installed" });
+            res.status(500).json({ error: "Java is not installed or not working..." });
         } else {
             res.json({ version: stderr || stdout });
         }
     });
 });
+
 
 
 
