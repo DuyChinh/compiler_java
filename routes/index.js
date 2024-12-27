@@ -64,12 +64,15 @@ router.post("/test", (req, res) => {
           // Chạy mã Java với input
           const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
           exec(command, (runErr, runStdout, runStderr) => {
-              if (runErr) {
-                  res.status(400).json({ error: `Runtime Error: ${runStderr}` });
-                  return;
-              }
+                if (runErr) {
+                    res.status(400).json({ error: `Runtime Error: ${runStderr}` });
+                    return;
+                }
+              
+                const outputLines = runStdout.trim().split("\n");
+                const finalOutput = outputLines[outputLines.length - 1];
 
-              res.json({ output: runStdout });
+                res.json({ output: finalOutput });
           });
       });
   } catch (err) {
