@@ -129,6 +129,17 @@ router.get("/check-java", (req, res) => {
     });
 });
 
+router.get("/check-cpp", (req, res) => {
+    exec("g++ --version", (err, stdout, stderr) => {
+      if (err) {
+        res.status(500).json({ error: "g++ is not installed or not working..." });
+      } else {
+        res.json({ version: stdout || stderr });
+      }
+    });
+  });
+  
+
 // router.post("/test", (req, res) => {
 //     const { code, input } = req.body;
 //     const tempFilePath = "/tmp/Main.java";
