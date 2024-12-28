@@ -40,6 +40,23 @@ router.post("/compile", (req, res) => {
   });
 });
 
+const retryExec = (command, retries, delay) =>
+    new Promise((resolve, reject) => {
+        const attempt = (remainingRetries) => {
+            exec(command, (err, stdout, stderr) => {
+                if (!err) {
+                    resolve({ stdout, stderr }); // Thành công
+                } else if (remainingRetries > 0) {
+                    console.log(`Retrying in ${delay}ms...`);
+                    setTimeout(() => attempt(remainingRetries - 1), delay); // Chờ trước khi thử lại
+                } else {
+                    reject({ error: err, stderr }); // Hết lần retry
+                }
+            });
+        };
+        attempt(retries); // Bắt đầu thử
+    });
+
 
 router.post("/test", (req, res) => {
   const { code, input } = req.body;
@@ -54,27 +71,50 @@ router.post("/test", (req, res) => {
       fs.writeFileSync(tempFilePath, code, { encoding: "utf8", flag: "w" });
 
 
-      // Biên dịch mã Java
-      exec(`javac -d ${compiledFilePath} ${tempFilePath}`, (compileErr, compileStdout, compileStderr) => {
-          if (compileErr) {
-              res.status(400).json({ error: `Compile Error: ${compileStderr}` });
-              return;
-          }
+        // Biên dịch mã Java
+        // exec(`javac -d ${compiledFilePath} ${tempFilePath}`, (compileErr, compileStdout, compileStderr) => {
+        //     if (compileErr) {
+        //         res.status(400).json({ error: `Compile Error: ${compileStderr}` });
+        //         return;
+        //     }
 
-          // Chạy mã Java với input
-          const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
-          exec(command, (runErr, runStdout, runStderr) => {
-                if (runErr) {
-                    res.status(400).json({ error: `Runtime Error: ${runStderr}` });
-                    return;
-                }
-              
-                const outputLines = runStdout.trim().split("\n");
+        //     // Chạy mã Java với input
+        //     const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
+            
+        //     exec(command, (runErr, runStdout, runStderr) => {
+        //             if (runErr) {
+        //                 res.status(400).json({ error: `Runtime Error: ${runStderr}` });
+        //                 return;
+        //             }
+                
+        //             const outputLines = runStdout.trim().split("\n");
+        //             const finalOutput = outputLines[outputLines.length - 1];
+
+        //             res.json({ output: finalOutput });
+        //     });
+        // });
+
+        exec(`javac -d ${compiledFilePath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
+            if (compileErr) {
+                res.status(400).json({ error: `Compile Error: ${compileStderr}` });
+                return;
+            }
+
+            // Chạy mã Java với input
+            const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
+            try {
+                // Retry tối đa 3 lần, mỗi lần cách nhau 2 giây
+                const { stdout } = await retryExec(command, 3, 2000);
+
+                // Xử lý kết quả đầu ra
+                const outputLines = stdout.trim().split("\n");
                 const finalOutput = outputLines[outputLines.length - 1];
 
                 res.json({ output: finalOutput });
-          });
-      });
+            } catch ({ error, stderr }) {
+                res.status(400).json({ error: `Runtime Error: ${stderr}` }); // Lỗi sau khi retry
+            }
+        });
   } catch (err) {
       res.status(500).json({ error: "Internal Server Error" });
   }
