@@ -13,9 +13,12 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Cài đặt dependencies
+# add
+COPY package*.json ./ 
 RUN npm install
 
-EXPOSE 3001
+# EXPOSE 3001
+EXPOSE 3000
 
 # Khởi động ứng dụng
 CMD ["node", "app.js"]
