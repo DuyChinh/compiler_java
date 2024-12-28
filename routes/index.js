@@ -164,10 +164,10 @@ router.post("/test", (req, res) => {
             const { stdout } = await retryExec(command, 1, 2000);
   
             // Xử lý kết quả đầu ra
-            const outputLines = stdout.trim().split("\n");
-            const finalOutput = outputLines[outputLines.length - 1];
+            const outputLines = stdout.trim();
+            // const finalOutput = outputLines[outputLines.length - 1];
   
-            res.json({ output: finalOutput });
+            res.json({ output: outputLines });
           } catch ({ error, stderr }) {
             res.status(400).json({ error: `Runtime Error: ${stderr}` });
           }
@@ -189,10 +189,10 @@ router.post("/test", (req, res) => {
             const { stdout } = await retryExec(command, 1, 2000);
   
             // Xử lý kết quả đầu ra
-            const outputLines = stdout.trim().split("\n");
-            const finalOutput = outputLines[outputLines.length - 1];
+            const outputLines = stdout.trim();
+            // const finalOutput = outputLines[outputLines.length - 1];
   
-            res.json({ output: finalOutput });
+            res.json({ output: outputLines });
           } catch ({ error, stderr }) {
             res.status(400).json({ error: `Runtime Error: ${stderr}` });
           }
