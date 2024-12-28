@@ -103,8 +103,7 @@ router.post("/test", (req, res) => {
             // Chạy mã Java với input
             const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
             try {
-                // Retry tối đa 3 lần, mỗi lần cách nhau 2 giây
-                const { stdout } = await retryExec(command, 3, 2000);
+                const { stdout } = await retryExec(command, 1, 2000);
 
                 // Xử lý kết quả đầu ra
                 const outputLines = stdout.trim().split("\n");
