@@ -38,9 +38,9 @@ router.post("/compile-cpp", (req, res) => {
             return;
           }
   
-          const outputLines = runStdout.trim().split("\n");
-          const finalOutput = outputLines[outputLines.length - 1];
-          res.json({ output: finalOutput });
+          const outputLines = runStdout.trim();
+          // const finalOutput = outputLines[outputLines.length - 1];
+          res.json({ output: outputLines });
         });
       });
     } catch (err) {
@@ -73,9 +73,9 @@ router.post("/compile-java", (req, res) => {
                 return;
             }
 
-            const outputLines = runStdout.trim().split("\n");
-            const finalOutput = outputLines[outputLines.length - 1];
-            res.json({ output: finalOutput });
+            const outputLines = runStdout.trim();
+            // const finalOutput = outputLines[outputLines.length - 1];
+            res.json({ output: outputLines });
       });
   });
 });
