@@ -2,14 +2,10 @@
 FROM openjdk:11-jdk-slim
 
 # Cài đặt Node.js
-# RUN apt-get update && apt-get install -y curl && \
-#     curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-#     apt-get install -y nodejs
-
 RUN apt-get update && apt-get install -y curl && \
-curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-apt-get install -y nodejs && \
-apt-get clean
+    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
+
 # Thiết lập thư mục làm việc
 WORKDIR /usr/src/app
 
@@ -17,12 +13,9 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Cài đặt dependencies
-# add
-COPY package*.json ./ 
 RUN npm install
 
-# EXPOSE 3001
-EXPOSE 3000
+EXPOSE 3001
 
 # Khởi động ứng dụng
 CMD ["node", "app.js"]
