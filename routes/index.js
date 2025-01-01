@@ -80,6 +80,30 @@ router.post("/compile-java", (req, res) => {
   });
 });
 
+router.post("/compile-python", (req, res) => {
+  const { code, input } = req.body;
+
+  // Lưu mã Python vào file
+  const tempFilePath = "/tmp/main.py";
+  fs.writeFileSync(tempFilePath, code, { encoding: "utf8", flag: "w" });
+
+  // Chạy mã Python với input
+  const command = input
+    ? `echo "${input}" | python3 ${tempFilePath}`
+    : `python3 ${tempFilePath}`;
+
+  exec(command, (runErr, runStdout, runStderr) => {
+    if (runErr) {
+      res.status(400).json({ error: `Runtime Error: ${runStderr}` });
+      return;
+    }
+
+    const outputLines = runStdout.trim();
+    res.json({ output: outputLines });
+  });
+});
+
+
 const retryExec = (command, retries, delay) =>
     new Promise((resolve, reject) => {
         const attempt = (remainingRetries) => {
@@ -96,42 +120,6 @@ const retryExec = (command, retries, delay) =>
         };
         attempt(retries); // Bắt đầu thử
     });
-
-
-// router.post("/test", (req, res) => {
-//   const { code, input } = req.body;
-
-//   // Sử dụng thư mục tạm thời của Vercel (/tmp)
-//   const tempFilePath = "/tmp/Main.java"; // Đường dẫn file tạm thời
-//   const compiledFilePath = "/tmp"; // Nơi chứa file biên dịch
-
-//   try {
-//       fs.writeFileSync(tempFilePath, code, { encoding: "utf8", flag: "w" });
-
-//         exec(`javac -d ${compiledFilePath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
-//             if (compileErr) {
-//                 res.status(400).json({ error: `Compile Error: ${compileStderr}` });
-//                 return;
-//             }
-
-//             // Chạy mã Java với input
-//             const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
-//             try {
-//                 const { stdout } = await retryExec(command, 1, 2000);
-
-//                 // Xử lý kết quả đầu ra
-//                 const outputLines = stdout.trim().split("\n");
-//                 const finalOutput = outputLines[outputLines.length - 1];
-
-//                 res.json({ output: finalOutput });
-//             } catch ({ error, stderr }) {
-//                 res.status(400).json({ error: `Runtime Error: ${stderr}` }); // Lỗi sau khi retry
-//             }
-//         });
-//   } catch (err) {
-//       res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
 
 router.post("/test", (req, res) => {
     const { code, input, language } = req.body;
@@ -197,6 +185,27 @@ router.post("/test", (req, res) => {
             res.status(400).json({ error: `Runtime Error: ${stderr}` });
           }
         });
+      } else if (language === "python") {
+        exec(`python3 ${tempPythonFilePath}`, async (runErr, runStdout, runStderr) => {
+          if (runErr) {
+            res.status(400).json({ error: `Runtime Error: ${runStderr}` });
+            return;
+          }
+
+          // Chạy mã Python với input
+          const command = input
+            ? `echo "${input}" | python3 ${tempPythonFilePath}`
+            : `python3 ${tempPythonFilePath}`;
+          try {
+            const { stdout } = await retryExec(command, 1, 2000);
+
+            // Xử lý kết quả đầu ra
+            const outputLines = stdout.trim();
+            res.json({ output: outputLines });
+          } catch ({ error, stderr }) {
+            res.status(400).json({ error: `Runtime Error: ${stderr}` });
+          }
+        });
       }
     } catch (err) {
       res.status(500).json({ error: "Internal Server Error" });
@@ -223,5 +232,15 @@ router.get("/check-cpp", (req, res) => {
       }
     });
   });
+
+  router.get("/check-python", (req, res) => {
+    exec("python3 --version", (err, stdout, stderr) => {
+        if (err) {
+            res.status(500).json({ error: "Python is not installed or not working..." });
+        } else {
+            res.json({ version: stdout || stderr });
+        }
+    });
+});
 
 module.exports = router;
