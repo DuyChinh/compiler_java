@@ -121,97 +121,160 @@ const retryExec = (command, retries, delay) =>
         attempt(retries); // Bắt đầu thử
     });
 
+// router.post("/test", (req, res) => {
+//     const { code, input, language } = req.body;
+  
+//     // Kiểm tra ngôn ngữ lập trình (java hoặc cpp)
+//     if (!["java", "cpp"].includes(language)) {
+//       res.status(400).json({ error: "Unsupported language. Use 'java' or 'cpp'." });
+//       return;
+//     }
+  
+//     // Thư mục tạm cho file mã nguồn
+//     const tempFilePath = language === "java" ? "/tmp/Main.java" : "/tmp/main.cpp";
+//     const compiledFilePath = "/tmp"; // Thư mục chứa file biên dịch
+  
+//     try {
+//       // Lưu mã nguồn vào file tạm
+//       fs.writeFileSync(tempFilePath, code, { encoding: "utf8", flag: "w" });
+  
+//       if (language === "java") {
+//         // Biên dịch mã Java
+//         exec(`javac -d ${compiledFilePath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
+//           if (compileErr) {
+//             res.status(400).json({ error: `Compile Error: ${compileStderr}` });
+//             return;
+//           }
+  
+//           // Chạy mã Java với input
+//           const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
+//           try {
+//             const { stdout } = await retryExec(command, 1, 2000);
+  
+//             // Xử lý kết quả đầu ra
+//             const outputLines = stdout.trim();
+//             // const finalOutput = outputLines[outputLines.length - 1];
+  
+//             res.json({ output: outputLines });
+//           } catch ({ error, stderr }) {
+//             res.status(400).json({ error: `Runtime Error: ${stderr}` });
+//           }
+//         });
+//       } else if (language === "cpp") {
+//         // Biên dịch mã C++
+//         const compiledCppPath = "/tmp/main.out"; // File thực thi cho C++
+//         exec(`g++ -o ${compiledCppPath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
+//           if (compileErr) {
+//             res.status(400).json({ error: `Compile Error: ${compileStderr}` });
+//             return;
+//           }
+  
+//           // Chạy mã C++ với input
+//           const command = input
+//             ? `echo "${input}" | ${compiledCppPath}`
+//             : `${compiledCppPath}`;
+//           try {
+//             const { stdout } = await retryExec(command, 1, 2000);
+  
+//             // Xử lý kết quả đầu ra
+//             const outputLines = stdout.trim();
+//             // const finalOutput = outputLines[outputLines.length - 1];
+  
+//             res.json({ output: outputLines });
+//           } catch ({ error, stderr }) {
+//             res.status(400).json({ error: `Runtime Error: ${stderr}` });
+//           }
+//         });
+//       } else if (language === "python") {
+        
+        
+//       }
+//     } catch (err) {
+//       res.status(500).json({ error: "Internal Server Error" });
+//     }
+//   });
+  
 router.post("/test", (req, res) => {
-    const { code, input, language } = req.body;
-  
-    // Kiểm tra ngôn ngữ lập trình (java hoặc cpp)
-    if (!["java", "cpp"].includes(language)) {
-      res.status(400).json({ error: "Unsupported language. Use 'java' or 'cpp'." });
-      return;
-    }
-  
-    // Thư mục tạm cho file mã nguồn
-    const tempFilePath = language === "java" ? "/tmp/Main.java" : "/tmp/main.cpp";
-    const compiledFilePath = "/tmp"; // Thư mục chứa file biên dịch
-  
-    try {
-      // Lưu mã nguồn vào file tạm
-      fs.writeFileSync(tempFilePath, code, { encoding: "utf8", flag: "w" });
-  
-      if (language === "java") {
-        // Biên dịch mã Java
-        exec(`javac -d ${compiledFilePath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
-          if (compileErr) {
-            res.status(400).json({ error: `Compile Error: ${compileStderr}` });
-            return;
-          }
-  
-          // Chạy mã Java với input
-          const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
-          try {
-            const { stdout } = await retryExec(command, 1, 2000);
-  
-            // Xử lý kết quả đầu ra
-            const outputLines = stdout.trim();
-            // const finalOutput = outputLines[outputLines.length - 1];
-  
-            res.json({ output: outputLines });
-          } catch ({ error, stderr }) {
-            res.status(400).json({ error: `Runtime Error: ${stderr}` });
-          }
-        });
-      } else if (language === "cpp") {
-        // Biên dịch mã C++
-        const compiledCppPath = "/tmp/main.out"; // File thực thi cho C++
-        exec(`g++ -o ${compiledCppPath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
-          if (compileErr) {
-            res.status(400).json({ error: `Compile Error: ${compileStderr}` });
-            return;
-          }
-  
-          // Chạy mã C++ với input
-          const command = input
-            ? `echo "${input}" | ${compiledCppPath}`
-            : `${compiledCppPath}`;
-          try {
-            const { stdout } = await retryExec(command, 1, 2000);
-  
-            // Xử lý kết quả đầu ra
-            const outputLines = stdout.trim();
-            // const finalOutput = outputLines[outputLines.length - 1];
-  
-            res.json({ output: outputLines });
-          } catch ({ error, stderr }) {
-            res.status(400).json({ error: `Runtime Error: ${stderr}` });
-          }
-        });
-      } else if (language === "python") {
-        exec(`python3 ${tempPythonFilePath}`, async (runErr, runStdout, runStderr) => {
-          if (runErr) {
-            res.status(400).json({ error: `Runtime Error: ${runStderr}` });
-            return;
-          }
+  const { code, input, language } = req.body;
 
-          // Chạy mã Python với input
-          const command = input
-            ? `echo "${input}" | python3 ${tempPythonFilePath}`
-            : `python3 ${tempPythonFilePath}`;
-          try {
-            const { stdout } = await retryExec(command, 1, 2000);
+  // Kiểm tra ngôn ngữ lập trình (java, cpp, hoặc python)
+  if (!["java", "cpp", "python"].includes(language)) {
+    res.status(400).json({ error: "Unsupported language. Use 'java', 'cpp', or 'python'." });
+    return;
+  }
 
-            // Xử lý kết quả đầu ra
-            const outputLines = stdout.trim();
-            res.json({ output: outputLines });
-          } catch ({ error, stderr }) {
-            res.status(400).json({ error: `Runtime Error: ${stderr}` });
-          }
-        });
-      }
-    } catch (err) {
-      res.status(500).json({ error: "Internal Server Error" });
+  // Thư mục tạm cho file mã nguồn
+  const tempFilePath = language === "java" ? "/tmp/Main.java" : language === "cpp" ? "/tmp/main.cpp" : "/tmp/main.py";
+  const compiledFilePath = "/tmp"; // Thư mục chứa file biên dịch
+
+  try {
+    // Lưu mã nguồn vào file tạm
+    fs.writeFileSync(tempFilePath, code, { encoding: "utf8", flag: "w" });
+
+    if (language === "java") {
+      // Biên dịch mã Java
+      exec(`javac -d ${compiledFilePath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
+        if (compileErr) {
+          res.status(400).json({ error: `Compile Error: ${compileStderr}` });
+          return;
+        }
+
+        // Chạy mã Java với input
+        const command = `echo "${input}" | java -cp ${compiledFilePath} Main`;
+        try {
+          const { stdout } = await retryExec(command, 1, 2000);
+
+          // Xử lý kết quả đầu ra
+          const outputLines = stdout.trim();
+          res.json({ output: outputLines });
+        } catch ({ error, stderr }) {
+          res.status(400).json({ error: `Runtime Error: ${stderr}` });
+        }
+      });
+    } else if (language === "cpp") {
+      // Biên dịch mã C++
+      const compiledCppPath = "/tmp/main.out"; // File thực thi cho C++
+      exec(`g++ -o ${compiledCppPath} ${tempFilePath}`, async (compileErr, compileStdout, compileStderr) => {
+        if (compileErr) {
+          res.status(400).json({ error: `Compile Error: ${compileStderr}` });
+          return;
+        }
+
+        // Chạy mã C++ với input
+        const command = input
+          ? `echo "${input}" | ${compiledCppPath}`
+          : `${compiledCppPath}`;
+        try {
+          const { stdout } = await retryExec(command, 1, 2000);
+
+          // Xử lý kết quả đầu ra
+          const outputLines = stdout.trim();
+          res.json({ output: outputLines });
+        } catch ({ error, stderr }) {
+          res.status(400).json({ error: `Runtime Error: ${stderr}` });
+        }
+      });
+    } else if (language === "python") {
+      // Chạy mã Python
+      const command = input
+        ? `echo "${input}" | python3 ${tempFilePath}`
+        : `python3 ${tempFilePath}`;
+      exec(command, async (runErr, runStdout, runStderr) => {
+        if (runErr) {
+          res.status(400).json({ error: `Runtime Error: ${runStderr}` });
+          return;
+        }
+
+        // Xử lý kết quả đầu ra
+        const outputLines = runStdout.trim();
+        res.json({ output: outputLines });
+      });
     }
-  });
-  
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 router.get("/check-java", (req, res) => {
     exec("java -version", (err, stdout, stderr) => {
